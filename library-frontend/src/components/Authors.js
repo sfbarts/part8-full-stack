@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { ALL_AUTHORS, ADD_BIRTH } from "../queries";
 import { useQuery, useMutation } from "@apollo/client";
+import Select from "react-select";
 
 const Authors = (props) => {
   const [name, setName] = useState("");
@@ -24,9 +25,28 @@ const Authors = (props) => {
 
     console.log("add birthyear...");
     addBirth({ variables: { name, birth: Number(born) } });
-
+    console.log();
     setName("");
     setBorn("");
+  };
+
+  const authorOptions = authors.map((a) => {
+    return { value: a.name, label: a.name };
+  });
+
+  const selectSytle = {
+    control: (provided, state) => ({
+      ...provided,
+      width: 200,
+    }),
+    option: (provided, state) => ({
+      ...provided,
+      width: 200,
+    }),
+    menu: (provided) => ({
+      ...provided,
+      width: 200,
+    }),
   };
 
   return (
@@ -52,9 +72,10 @@ const Authors = (props) => {
       <form onSubmit={submit}>
         <div>
           name
-          <input
-            value={name}
-            onChange={({ target }) => setName(target.value)}
+          <Select
+            options={authorOptions}
+            onChange={(selected) => setName(selected.value)}
+            styles={selectSytle}
           />
         </div>
         <div>
