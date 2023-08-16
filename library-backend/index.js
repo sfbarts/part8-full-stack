@@ -153,7 +153,9 @@ const resolvers = {
       }
 
       if (args.author) {
-        return books.filter((b) => b.author === args.author);
+        const author = await Author.findOne({ name: args.author }).populate();
+        // return books.filter((b) => b.author === args.author);
+        return Book.find({ author: author._id });
       }
 
       return books.filter((b) => b.genres.includes(args.genre));
@@ -162,10 +164,15 @@ const resolvers = {
   },
   Mutation: {
     addBook: async (root, args) => {
-      let author = await Author.findOne({ name: args.author }).populate();
+      let author = await Author.findOne({
+        name: args.author,
+      }).populate();
+
       if (!author) {
-        author = new Author({ name: args.author });
+        const newAuthor = new Author({ name: args.author });
+        author = await newAuthor.save();
       }
+
       const book = new Book({ ...args, author: author });
       return book.save();
     },
