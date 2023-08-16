@@ -28,20 +28,6 @@ let authors = [
   },
 ];
 
-/*
- * Suomi:
- * Saattaisi olla järkevämpää assosioida kirja ja sen tekijä tallettamalla kirjan yhteyteen tekijän nimen sijaan tekijän id
- * Yksinkertaisuuden vuoksi tallennamme kuitenkin kirjan yhteyteen tekijän nimen
- *
- * English:
- * It might make more sense to associate a book with its author by storing the author's id in the context of the book instead of the author's name
- * However, for simplicity, we will store the author's name in connection with the book
- *
- * Spanish:
- * Podría tener más sentido asociar un libro con su autor almacenando la id del autor en el contexto del libro en lugar del nombre del autor
- * Sin embargo, por simplicidad, almacenaremos el nombre del autor en conección con el libro
- */
-
 let books = [
   {
     title: "Clean Code",
@@ -94,9 +80,25 @@ let books = [
   },
 ];
 
-/*
-  you can remove the placeholder query once your first own has been implemented 
-*/
+const mongoose = require("mongoose");
+mongoose.set("strictQuery", false);
+const Book = require("./models/Book");
+const Author = require("./models/Author");
+
+require("dotenv").config();
+
+const MONGODB_URI = process.env.MONGO_URI;
+
+console.log("connecting to", MONGODB_URI);
+
+mongoose
+  .connect(MONGODB_URI)
+  .then(() => {
+    console.log("connected to MongoDB");
+  })
+  .catch((error) => {
+    console.log("error connection to MongoDB: ", error.message);
+  });
 
 const typeDefs = `
   type Author {
@@ -107,10 +109,10 @@ const typeDefs = `
   }
 
   type Book {
-    title: String
-    author: String
-    published: Int
-    genres: [String]
+    title: String!
+    author: Author!
+    published: Int!
+    genres: [String!]!
     id: ID!
   }
 
@@ -126,7 +128,7 @@ const typeDefs = `
       title: String!
       author: String!
       published: Int!
-      genres: [String]
+      genres: [String!]!
     ): Book
     editAuthor(
       name: String!
@@ -145,9 +147,9 @@ const resolvers = {
   Query: {
     bookCount: () => books.length,
     authorCount: () => authors.length,
-    allBooks: (root, args) => {
+    allBooks: async (root, args) => {
       if (!args.author && !args.genre) {
-        return books;
+        return Book.find({});
       }
 
       if (args.author) {
@@ -159,15 +161,13 @@ const resolvers = {
     allAuthors: () => authors,
   },
   Mutation: {
-    addBook: (root, args) => {
-      const book = { ...args, id: uuid() };
-      books = books.concat(book);
-
-      const author = authors.find((a) => a.name === args.author);
+    addBook: async (root, args) => {
+      let author = await Author.findOne({ name: args.author }).populate();
       if (!author) {
-        authors = authors.concat({ name: args.author, id: uuid() });
+        author = new Author({ name: args.author });
       }
-      return book;
+      const book = new Book({ ...args, author: author });
+      return book.save();
     },
     editAuthor: (root, args) => {
       let author = authors.find((a) => a.name === args.name);
