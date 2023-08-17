@@ -8,7 +8,6 @@ import LoginForm from "./components/LoginForm";
 import Recommendations from "./components/Recommendations";
 
 const App = () => {
-  const [page, setPage] = useState("authors");
   const [token, setToken] = useState(null);
   const client = useApolloClient();
 
@@ -27,20 +26,18 @@ const App = () => {
       <div>
         <div>
           <Link to="/authors">
-            <button onClick={() => setPage("authors")}>authors</button>
+            <button>authors</button>
           </Link>
           <Link to="/books">
-            <button onClick={() => setPage("books")}>books</button>
+            <button>books</button>
           </Link>
           {token ? (
             [
               <Link key="add_book_page" to="/new-book">
-                <button onClick={() => setPage("add")}>add book</button>
+                <button>add book</button>
               </Link>,
               <Link key="recommendations_page" to="/recommendations">
-                <button onClick={() => setPage("recommendations")}>
-                  recommendations
-                </button>
+                <button>recommendations</button>
               </Link>,
               <Link key="logout_page" to="/authors">
                 <button onClick={logout}>logout</button>
@@ -48,35 +45,17 @@ const App = () => {
             ]
           ) : (
             <Link to="/login">
-              <button onClick={() => setPage("login")}>login</button>
+              <button>login</button>
             </Link>
           )}
         </div>
 
         <Routes>
-          <Route
-            path="/authors"
-            element={<Authors show={page === "authors"} />}
-          />
-          <Route path="/books" element={<Books show={page === "books"} />} />
-          <Route
-            path="/new-book"
-            element={<NewBook show={page === "add"} setPage={setPage} />}
-          />
-          <Route
-            path="/recommendations"
-            element={<Recommendations show={page === "recommendations"} />}
-          />
-          <Route
-            path="/login"
-            element={
-              <LoginForm
-                show={page === "login"}
-                setToken={setToken}
-                setPage={setPage}
-              />
-            }
-          />
+          <Route path="/authors" element={<Authors />} />
+          <Route path="/books" element={<Books />} />
+          <Route path="/new-book" element={<NewBook />} />
+          <Route path="/recommendations" element={<Recommendations />} />
+          <Route path="/login" element={<LoginForm setToken={setToken} />} />
           <Route
             path="/"
             element={

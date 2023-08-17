@@ -16,7 +16,6 @@ const LoginForm = ({ setToken, show, setPage }) => {
       setToken(token);
       localStorage.setItem("user-token", token);
       navigate("/authors");
-      setPage("authors");
     }
   }, [result.data]); // eslint-disable-line
 
@@ -24,10 +23,6 @@ const LoginForm = ({ setToken, show, setPage }) => {
     event.preventDefault();
     login({ variables: { username, password } });
   };
-
-  if (!show) {
-    return null;
-  }
 
   return (
     <div>

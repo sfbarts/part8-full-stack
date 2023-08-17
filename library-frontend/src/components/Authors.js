@@ -14,10 +14,6 @@ const Authors = (props) => {
     return <div>loading...</div>;
   }
 
-  if (!props.show) {
-    return null;
-  }
-
   const authors = result.data.allAuthors;
 
   const submit = async (event) => {

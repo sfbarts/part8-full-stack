@@ -7,25 +7,26 @@ const Books = (props) => {
   const [genre, setGenre] = useState(null);
   const [books, setBooks] = useState([]);
 
-  const allBooks = result.data.allBooks;
-  const genres = Array.from(new Set(allBooks.flatMap((b) => b.genres)));
-  const filteredBooks = allBooks.filter((b) => b.genres.includes(genre));
-
   useEffect(() => {
-    if (genre) {
-      setBooks(filteredBooks);
-    } else {
-      setBooks(allBooks);
+    if (result.data && result.data.allBooks) {
+      if (genre) {
+        const filteredBooks = result.data.allBooks.filter((b) =>
+          b.genres.includes(genre)
+        );
+        setBooks(filteredBooks);
+      } else {
+        setBooks(result.data.allBooks);
+      }
     }
-  }, [genre]); //eslint-disable-line
+  }, [genre, result.data]); //eslint-disable-line
 
   if (result.loading) {
     return <div>loading...</div>;
   }
 
-  if (!props.show) {
-    return null;
-  }
+  const genres = Array.from(
+    new Set(result.data.allBooks.flatMap((b) => b.genres))
+  );
 
   return (
     <div>

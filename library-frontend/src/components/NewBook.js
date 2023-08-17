@@ -16,10 +16,6 @@ const NewBook = (props) => {
 
   const navigate = useNavigate();
 
-  if (!props.show) {
-    return null;
-  }
-
   const submit = async (event) => {
     event.preventDefault();
 
@@ -33,7 +29,6 @@ const NewBook = (props) => {
     setAuthor("");
     setGenres([]);
     setGenre("");
-    props.setPage("books");
     navigate("/books");
   };
 

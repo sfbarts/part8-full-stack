@@ -21,10 +21,6 @@ const Recommendations = (props) => {
     return <div>loading...</div>;
   }
 
-  if (!props.show) {
-    return null;
-  }
-
   let books = [];
 
   if (booksResult.data && booksResult.data.allBooks) {
@@ -37,22 +33,28 @@ const Recommendations = (props) => {
       {!books.length ? (
         <p>There are no books that matched your favorite genre {genre}</p>
       ) : (
-        <table>
-          <tbody>
-            <tr>
-              <th></th>
-              <th>author</th>
-              <th>published</th>
-            </tr>
-            {books.map((a) => (
-              <tr key={a.title}>
-                <td>{a.title}</td>
-                <td>{a.author.name}</td>
-                <td>{a.published}</td>
+        <div>
+          <p>
+            Here are the books based on your favorite genre:{" "}
+            <strong>{genre}</strong>
+          </p>
+          <table>
+            <tbody>
+              <tr>
+                <th></th>
+                <th>author</th>
+                <th>published</th>
               </tr>
-            ))}
-          </tbody>
-        </table>
+              {books.map((a) => (
+                <tr key={a.title}>
+                  <td>{a.title}</td>
+                  <td>{a.author.name}</td>
+                  <td>{a.published}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
       )}
     </div>
   );
