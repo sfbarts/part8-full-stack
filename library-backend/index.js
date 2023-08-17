@@ -122,11 +122,19 @@ const resolvers = {
         });
       }
 
-      return Book.find({ genres: args.genre }).populate("author", {
-        name: 1,
-        born: 1,
-        bookCount: 1,
-      });
+      if (args.genre) {
+        const genre = await Book.find({ genres: args.genre }).populate(
+          "author",
+          {
+            name: 1,
+            born: 1,
+            bookCount: 1,
+          }
+        );
+
+        console.log(genre);
+        return genre;
+      }
     },
     allAuthors: async () => Author.find({}),
     me: (root, args, { currentUser }) => {

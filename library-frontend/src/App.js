@@ -5,6 +5,7 @@ import Authors from "./components/Authors";
 import Books from "./components/Books";
 import NewBook from "./components/NewBook";
 import LoginForm from "./components/LoginForm";
+import Recommendations from "./components/Recommendations";
 
 const App = () => {
   const [page, setPage] = useState("authors");
@@ -36,6 +37,11 @@ const App = () => {
               <Link key="add_book_page" to="/new-book">
                 <button onClick={() => setPage("add")}>add book</button>
               </Link>,
+              <Link key="recommendations_page" to="/recommendations">
+                <button onClick={() => setPage("recommendations")}>
+                  recommendations
+                </button>
+              </Link>,
               <Link key="logout_page" to="/authors">
                 <button onClick={logout}>logout</button>
               </Link>,
@@ -56,6 +62,10 @@ const App = () => {
           <Route
             path="/new-book"
             element={<NewBook show={page === "add"} setPage={setPage} />}
+          />
+          <Route
+            path="/recommendations"
+            element={<Recommendations show={page === "recommendations"} />}
           />
           <Route
             path="/login"
