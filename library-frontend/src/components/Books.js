@@ -18,7 +18,7 @@ const Books = (props) => {
         setBooks(result.data.allBooks);
       }
     }
-  }, [genre, result.data]); //eslint-disable-line
+  }, [genre, result.data]);
 
   if (result.loading) {
     return <div>loading...</div>;
