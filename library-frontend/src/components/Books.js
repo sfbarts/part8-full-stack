@@ -6,7 +6,6 @@ const Books = (props) => {
   const result = useQuery(ALL_BOOKS);
   const [genre, setGenre] = useState(null);
   const [books, setBooks] = useState([]);
-
   useEffect(() => {
     if (result.data && result.data.allBooks) {
       if (genre) {

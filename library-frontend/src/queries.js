@@ -55,6 +55,7 @@ export const NEW_BOOK = gql`
         name
         born
       }
+      genres
       id
     }
   }

@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { NEW_BOOK, ALL_BOOKS, ALL_AUTHORS } from "../queries";
+import { NEW_BOOK, ALL_BOOKS, ALL_AUTHORS, USER } from "../queries";
 import { useMutation } from "@apollo/client";
 import { useNavigate } from "react-router-dom";
 
@@ -11,7 +11,31 @@ const NewBook = (props) => {
   const [genres, setGenres] = useState([]);
 
   const [newBook] = useMutation(NEW_BOOK, {
-    refetchQueries: [{ query: ALL_BOOKS }, { query: ALL_AUTHORS }],
+    update: (cache, response) => {
+      cache.updateQuery({ query: ALL_BOOKS }, ({ allBooks }) => {
+        return {
+          allBooks: allBooks.concat(response.data.addBook),
+        };
+      });
+
+      cache.updateQuery({ query: ALL_AUTHORS }, ({ allAuthors }) => {
+        return {
+          allAuthors: allAuthors.concat(response.data.addBook.author),
+        };
+      });
+
+      const user = cache.readQuery({ query: USER });
+      const userGenre = user.me.favoriteGenre.toLowerCase();
+
+      cache.updateQuery(
+        { query: ALL_BOOKS, variables: { genre: userGenre } },
+        ({ allBooks }) => {
+          return {
+            allBooks: allBooks.concat(response.data.addBook),
+          };
+        }
+      );
+    },
   });
 
   const navigate = useNavigate();
