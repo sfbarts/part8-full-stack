@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { ALL_AUTHORS, ADD_BIRTH } from "../queries";
-import { useQuery, useMutation } from "@apollo/client";
+import { useQuery, useMutation, useApolloClient } from "@apollo/client";
 import Select from "react-select";
 
 const Authors = (props) => {
@@ -9,6 +9,8 @@ const Authors = (props) => {
 
   const result = useQuery(ALL_AUTHORS);
   const [addBirth] = useMutation(ADD_BIRTH);
+  const client = useApolloClient();
+  console.log(client.cache.extract());
 
   if (result.loading) {
     return <div>loading...</div>;

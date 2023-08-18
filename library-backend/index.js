@@ -90,6 +90,12 @@ const resolvers = {
     },
   },
   Query: {
+    me: (root, args, { currentUser }) => {
+      if (!currentUser) {
+        return null;
+      }
+      return currentUser;
+    },
     bookCount: () => Book.collection.countDocuments(),
     authorCount: () => Author.collection.countDocuments(),
     allBooks: async (root, args) => {
@@ -132,14 +138,10 @@ const resolvers = {
           }
         );
 
-        console.log(genre);
         return genre;
       }
     },
     allAuthors: async () => Author.find({}),
-    me: (root, args, { currentUser }) => {
-      return currentUser;
-    },
   },
   Mutation: {
     addBook: async (root, args, { currentUser }) => {

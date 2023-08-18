@@ -1,41 +1,47 @@
 import { useState, useEffect } from "react";
 import { USER, ALL_BOOKS } from "../queries";
-import { useQuery } from "@apollo/client";
+import { useQuery, useLazyQuery, useApolloClient } from "@apollo/client";
 
 const Recommendations = (props) => {
+  const [books, setBooks] = useState(null);
   const [genre, setGenre] = useState(null);
   const result = useQuery(USER);
+  const [userBooks, { data, loading }] = useLazyQuery(ALL_BOOKS);
+  const client = useApolloClient();
+  const userCache = client.cache.readQuery({ query: USER });
 
   useEffect(() => {
-    if (result.data) {
-      setGenre(result.data.me.favoriteGenre.toLowerCase());
+    if (userCache !== null) {
+      userBooks({
+        variables: {
+          genre:
+            userCache.me !== null
+              ? userCache.me.favoriteGenre.toLowerCase()
+              : null,
+        },
+      });
+      setGenre(
+        userCache.me !== null ? userCache.me.favoriteGenre.toLowerCase() : null
+      );
+      if (data) {
+        setBooks(data.allBooks);
+      }
     }
-  }, [genre, result.data]);
+  }, [userCache, data]);
 
-  const booksResult = useQuery(ALL_BOOKS, {
-    variables: { genre: genre },
-    skip: !genre,
-  });
-
-  if (result.loading) {
+  if (result.loading || loading) {
     return <div>loading...</div>;
-  }
-
-  let books = [];
-
-  if (booksResult.data && booksResult.data.allBooks) {
-    books = booksResult.data.allBooks;
   }
 
   return (
     <div>
       <h2>Recommendations</h2>
-      {!books.length ? (
+      {!books ? (
         <p>There are no books that matched your favorite genre {genre}</p>
       ) : (
         <div>
           <p>
-            Here are the books based on your favorite genre:{" "}
+            Here are the books based on your favorite genre:
             <strong>{genre}</strong>
           </p>
           <table>

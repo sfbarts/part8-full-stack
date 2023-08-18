@@ -17,8 +17,8 @@ const App = () => {
 
   const logout = () => {
     setToken(null);
-    localStorage.clear();
     client.resetStore();
+    localStorage.clear();
   };
 
   return (
@@ -39,7 +39,7 @@ const App = () => {
               <Link key="recommendations_page" to="/recommendations">
                 <button>recommendations</button>
               </Link>,
-              <Link key="logout_page" to="/authors">
+              <Link key="logout_page" to="/" reloadDocument>
                 <button onClick={logout}>logout</button>
               </Link>,
             ]
@@ -51,11 +51,6 @@ const App = () => {
         </div>
 
         <Routes>
-          <Route path="/authors" element={<Authors />} />
-          <Route path="/books" element={<Books />} />
-          <Route path="/new-book" element={<NewBook />} />
-          <Route path="/recommendations" element={<Recommendations />} />
-          <Route path="/login" element={<LoginForm setToken={setToken} />} />
           <Route
             path="/"
             element={
@@ -64,6 +59,14 @@ const App = () => {
               </div>
             }
           />
+          <Route path="/authors" element={<Authors />} />
+          <Route path="/books" element={<Books />} />
+          <Route path="/new-book" element={<NewBook />} />
+          <Route
+            path="/recommendations"
+            element={<Recommendations token={token} />}
+          />
+          <Route path="/login" element={<LoginForm setToken={setToken} />} />
         </Routes>
       </div>
     </Router>

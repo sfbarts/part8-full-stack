@@ -1,13 +1,14 @@
 import { useEffect, useState } from "react";
 import { LOGIN } from "../queries";
-import { useMutation } from "@apollo/client";
+import { useMutation, useApolloClient } from "@apollo/client";
 import { useNavigate } from "react-router-dom";
 
-const LoginForm = ({ setToken, show, setPage }) => {
+const LoginForm = ({ setToken }) => {
   const [login, result] = useMutation(LOGIN);
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
-
+  const client = useApolloClient();
+  console.log(client.cache.extract());
   const navigate = useNavigate();
 
   useEffect(() => {
