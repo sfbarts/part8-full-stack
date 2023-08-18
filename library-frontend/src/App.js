@@ -17,7 +17,7 @@ const App = () => {
 
   const logout = () => {
     setToken(null);
-    client.resetStore();
+    client.clearStore();
     localStorage.clear();
   };
 
@@ -39,7 +39,7 @@ const App = () => {
               <Link key="recommendations_page" to="/recommendations">
                 <button>recommendations</button>
               </Link>,
-              <Link key="logout_page" to="/" reloadDocument>
+              <Link key="logout_page" to="/">
                 <button onClick={logout}>logout</button>
               </Link>,
             ]

@@ -14,20 +14,15 @@ const Recommendations = (props) => {
     if (userCache !== null) {
       userBooks({
         variables: {
-          genre:
-            userCache.me !== null
-              ? userCache.me.favoriteGenre.toLowerCase()
-              : null,
+          genre: userCache.me.favoriteGenre.toLowerCase(),
         },
       });
-      setGenre(
-        userCache.me !== null ? userCache.me.favoriteGenre.toLowerCase() : null
-      );
+      setGenre(userCache.me.favoriteGenre.toLowerCase());
       if (data) {
         setBooks(data.allBooks);
       }
     }
-  }, [userCache, data]);
+  }, [userCache, data, userBooks]);
 
   if (result.loading || loading) {
     return <div>loading...</div>;
