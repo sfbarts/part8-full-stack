@@ -9,10 +9,8 @@ const pubsub = new PubSub();
 
 const resolvers = {
   Author: {
-    bookCount: async (root) => {
-      const author = await Author.findOne({ name: root.name }).populate();
-      const bookList = await Book.find({ author: author._id });
-      return bookList.length;
+    bookCount: (root) => {
+      return root.books.length;
     },
   },
   Query: {
@@ -67,7 +65,9 @@ const resolvers = {
         return genre;
       }
     },
-    allAuthors: async () => Author.find({}),
+    allAuthors: async (root, args) => {
+      return Author.find({});
+    },
   },
   Mutation: {
     addBook: async (root, args, { currentUser }) => {
@@ -99,8 +99,16 @@ const resolvers = {
 
       const newBook = new Book({ ...args, author: author });
       try {
-        const book = newBook.save();
+        const book = await newBook.save();
         pubsub.publish("BOOK_ADDED", { bookAdded: book });
+        const authorBooks = { books: author.books.concat(book) };
+        const updateAuthor = await Author.findByIdAndUpdate(
+          author._id,
+          authorBooks,
+          {
+            new: true,
+          }
+        );
         return book;
       } catch (error) {
         throw new GraphQLError("Not authenticated", {
