@@ -1,0 +1,172 @@
+const { GraphQLError } = require("graphql");
+const jwt = require("jsonwebtoken");
+const Book = require("../models/Book");
+const Author = require("../models/Author");
+const User = require("../models/User");
+
+const resolvers = {
+  Author: {
+    bookCount: async (root) => {
+      const author = await Author.findOne({ name: root.name }).populate();
+      const bookList = await Book.find({ author: author._id });
+      return bookList.length;
+    },
+  },
+  Query: {
+    me: (root, args, { currentUser }) => {
+      if (!currentUser) {
+        return null;
+      }
+      return currentUser;
+    },
+    bookCount: () => Book.collection.countDocuments(),
+    authorCount: () => Author.collection.countDocuments(),
+    allBooks: async (root, args) => {
+      if (!args.author && !args.genre) {
+        return Book.find({}).populate("author", {
+          name: 1,
+          born: 1,
+          bookCount: 1,
+        });
+      }
+
+      if (args.author && args.genre) {
+        const author = await Author.findOne({ name: args.author }).populate();
+        return Book.find({ author: author._id, genres: args.genre }).populate(
+          "author",
+          {
+            name: 1,
+            born: 1,
+            bookCount: 1,
+          }
+        );
+      }
+
+      if (args.author) {
+        const author = await Author.findOne({ name: args.author }).populate();
+        return Book.find({ author: author._id }).populate("author", {
+          name: 1,
+          born: 1,
+          bookCount: 1,
+        });
+      }
+
+      if (args.genre) {
+        const genre = await Book.find({ genres: args.genre }).populate(
+          "author",
+          {
+            name: 1,
+            born: 1,
+            bookCount: 1,
+          }
+        );
+
+        return genre;
+      }
+    },
+    allAuthors: async () => Author.find({}),
+  },
+  Mutation: {
+    addBook: async (root, args, { currentUser }) => {
+      let author = await Author.findOne({
+        name: args.author,
+      }).populate();
+
+      if (!currentUser) {
+        throw new GraphQLError("Wrong credentials", {
+          extensions: {
+            code: "BAD_USER_INPUT",
+          },
+        });
+      }
+
+      if (!author) {
+        const newAuthor = new Author({ name: args.author });
+        try {
+          author = await newAuthor.save();
+        } catch (error) {
+          throw new GraphQLError("Could not save author", {
+            extensions: {
+              invalidArgs: args.author,
+              error,
+            },
+          });
+        }
+      }
+
+      const newBook = new Book({ ...args, author: author });
+      try {
+        const book = newBook.save();
+        return book;
+      } catch (error) {
+        throw new GraphQLError("Not authenticated", {
+          extensions: {
+            invalidArgs: args.title,
+            error,
+          },
+        });
+      }
+    },
+
+    editAuthor: async (root, args, { currentUser }) => {
+      const author = await Author.findOne({ name: args.name }).populate();
+
+      if (!currentUser) {
+        throw new GraphQLError("Not authenticated", {
+          extensions: {
+            code: "BAD_USER_INPUT",
+          },
+        });
+      }
+
+      if (author) {
+        const newBirth = { born: args.setBornTo };
+        const update = await Author.findByIdAndUpdate(author._id, newBirth, {
+          new: true,
+        });
+        return update;
+      }
+
+      return null;
+    },
+
+    createUser: async (root, args) => {
+      const user = new User({
+        username: args.username,
+        favoriteGenre: args.favoriteGenre,
+      });
+      try {
+        return user.save();
+      } catch (error) {
+        throw new GraphQLError("Could not create user", {
+          extensions: {
+            code: "BAD_USER_INPUT",
+            invalidArgs: args.username,
+            error,
+          },
+        });
+      }
+    },
+
+    login: async (root, args) => {
+      const user = await User.findOne({ username: args.username });
+
+      if (!user || args.password !== "secret") {
+        throw new GraphQLError("Wrong credentials", {
+          extensions: {
+            code: "BAD_USER_INPUT",
+          },
+        });
+      }
+
+      const userForToken = {
+        username: user.username,
+        id: user._id,
+      };
+
+      return { value: jwt.sign(userForToken, process.env.SECRET) };
+    },
+  },
+};
+
+module.exports = resolvers;
