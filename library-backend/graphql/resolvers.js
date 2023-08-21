@@ -1,8 +1,11 @@
 const { GraphQLError } = require("graphql");
 const jwt = require("jsonwebtoken");
+const { PubSub } = require("graphql-subscriptions");
 const Book = require("../models/Book");
 const Author = require("../models/Author");
 const User = require("../models/User");
+
+const pubsub = new PubSub();
 
 const resolvers = {
   Author: {
@@ -97,6 +100,7 @@ const resolvers = {
       const newBook = new Book({ ...args, author: author });
       try {
         const book = newBook.save();
+        pubsub.publish("BOOK_ADDED", { bookAdded: book });
         return book;
       } catch (error) {
         throw new GraphQLError("Not authenticated", {
@@ -165,6 +169,12 @@ const resolvers = {
       };
 
       return { value: jwt.sign(userForToken, process.env.SECRET) };
+    },
+  },
+
+  Subscription: {
+    bookAdded: {
+      subscribe: () => pubsub.asyncIterator("BOOK_ADDED"),
     },
   },
 };
