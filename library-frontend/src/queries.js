@@ -1,6 +1,6 @@
 import { gql } from "@apollo/client";
 
-const BOOK_DETAILS = gql`
+export const BOOK_DETAILS = gql`
   fragment BookDetails on Book {
     title
     published
@@ -8,6 +8,7 @@ const BOOK_DETAILS = gql`
       name
       born
       bookCount
+      id
     }
     genres
     id

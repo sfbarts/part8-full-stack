@@ -1,11 +1,42 @@
 import { useState, useEffect } from "react";
-import { ALL_BOOKS } from "../queries";
-import { useQuery } from "@apollo/client";
+import { ALL_BOOKS, BOOK_ADDED } from "../queries";
+import { useQuery, useSubscription, useApolloClient } from "@apollo/client";
+
+export const updateCache = (cache, query, addedBook) => {
+  const uniqByName = (books) => {
+    let seen = new Set();
+
+    return books.filter((b) => {
+      let title = b.title;
+      return seen.has(title) ? false : seen.add(title);
+    });
+  };
+
+  cache.updateQuery(query, ({ allBooks }) => {
+    return {
+      allBooks: uniqByName(allBooks.concat(addedBook)),
+    };
+  });
+};
 
 const Books = (props) => {
   const result = useQuery(ALL_BOOKS);
   const [genre, setGenre] = useState(null);
   const [books, setBooks] = useState([]);
+  const client = useApolloClient();
+
+  useSubscription(BOOK_ADDED, {
+    onData: ({ data }) => {
+      const book = data.data.bookAdded;
+      updateCache(client.cache, { query: ALL_BOOKS }, book);
+      // client.cache.updateQuery({ query: ALL_BOOKS }, ({ allBooks }) => {
+      //   return {
+      //     allBooks: allBooks.concat(book),
+      //   };
+      // });
+    },
+  });
+
   useEffect(() => {
     if (result.data && result.data.allBooks) {
       if (genre) {

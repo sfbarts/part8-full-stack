@@ -8,14 +8,19 @@ import NewBook from "./components/NewBook";
 import LoginForm from "./components/LoginForm";
 import Recommendations from "./components/Recommendations";
 
+// import { loadErrorMessages, loadDevMessages } from "@apollo/client/dev";
+
+// loadDevMessages();
+// loadErrorMessages();
+
 const App = () => {
   const [token, setToken] = useState(null);
+
   const client = useApolloClient();
 
   useSubscription(BOOK_ADDED, {
     onData: ({ data }) => {
       const book = data.data.bookAdded;
-      console.log(book);
       window.alert(`The book ${book.title} has been added!`);
     },
   });
