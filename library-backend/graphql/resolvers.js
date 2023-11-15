@@ -27,7 +27,7 @@ const resolvers = {
         return Book.find({}).populate("author", {
           name: 1,
           born: 1,
-          bookCount: 1,
+          books: 1,
         });
       }
 
@@ -38,7 +38,7 @@ const resolvers = {
           {
             name: 1,
             born: 1,
-            bookCount: 1,
+            books: 1,
           }
         );
       }
@@ -48,7 +48,7 @@ const resolvers = {
         return Book.find({ author: author._id }).populate("author", {
           name: 1,
           born: 1,
-          bookCount: 1,
+          books: 1,
         });
       }
 
@@ -58,10 +58,10 @@ const resolvers = {
           {
             name: 1,
             born: 1,
-            bookCount: 1,
+            books: 1,
           }
         );
-
+        console.log(genre);
         return genre;
       }
     },
